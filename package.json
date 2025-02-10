@@ -1,0 +1,19 @@
+{
+	"name": "url-shortener",
+	"version": "1.0.0",
+	"description": "URL Shortener with Express and MongoDB",
+	"main": "./src/index.js",
+	"type": "module",
+	"scripts": {
+		"dev": "node src/index.js --watch",
+		"start": "node src/index.js"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "WTFPL",
+	"dependencies": {
+		"express": "^4.21.2",
+		"mongodb": "^6.13.0",
+		"nanoid": "^5.0.9"
+	}
+}

@@ -1,7 +1,11 @@
 
 import { MongoClient, ServerApiVersion } from 'mongodb'
 
-process.loadEnvFile()
+try {
+	process.loadEnvFile()
+} catch (error) {
+	console.error('Error running process.loadEnvFile()')
+}
 
 const uri = process.env.MONGODB_URI
 

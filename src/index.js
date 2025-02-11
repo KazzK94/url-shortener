@@ -5,7 +5,7 @@ import urlShortenerRoutes from './urls/urls.routes.js'
 try {
 	process.loadEnvFile()
 } catch (error) {
-	console.log('Error running process.loadEnvFile()')
+	console.error('Error running process.loadEnvFile()')
 }
 
 const app = express()

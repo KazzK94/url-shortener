@@ -17,7 +17,10 @@ router.post('/shorten', async (req, res) => {
 	}
 	try {
 		const result = await insertUrl(url)
-		res.json(result)
+		res.json({
+			...result,
+			shortUrl: `${req.secure ? 'https' : 'http'}://${req.hostname}/${result.shortKey}`
+		})
 	} catch (error) {
 		console.error(error)
 		res.status(500).json({ error: 'Something went wrong' })
@@ -26,7 +29,7 @@ router.post('/shorten', async (req, res) => {
 
 router.get('/:shortKey', async (req, res) => {
 	try {
-		const {shortKey} = req.params
+		const { shortKey } = req.params
 		const url = await findUrl(shortKey)
 		res.redirect(url)
 	} catch (error) {

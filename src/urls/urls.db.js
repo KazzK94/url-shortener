@@ -13,8 +13,7 @@ export async function insertUrl(url) {
 		return {
 			success: result.acknowledged,
 			shortKey,
-			targetUrl: url,
-			shortUrl: `http://localhost:3000/${shortKey}`
+			targetUrl: url
 		}
 	} catch (error) {
 		console.error(error)

@@ -18,6 +18,6 @@ app.use(express.json())
 app.use(urlShortenerRoutes)
 
 app.listen(port, () => {
-	console.log(`Server is running on http://localhost:${port}`)
+	console.log(`Server is running on PORT: ${port}`)
 });
 

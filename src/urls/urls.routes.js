@@ -19,7 +19,7 @@ router.post('/shorten', async (req, res) => {
 		const result = await insertUrl(url)
 		res.json({
 			...result,
-			shortUrl: `${req.secure ? 'https' : 'http'}://${req.hostname}/${result.shortKey}`
+			shortUrl: `https://${req.hostname}/${result.shortKey}`
 		})
 	} catch (error) {
 		console.error(error)

@@ -9,4 +9,12 @@ You have to send a /post request with the body containing { url: (your url here)
 You just need to visit the shortUrl generated in the Shorten URL step, and you will be automatically redirected.
 
 # Future Plans
-In the future this API will require authentication and an API Key.
+
+## Authentication
+In the future this API will require authentication.
+
+## API Key
+The app will give an API Key so any user can use the shortener in their site.
+
+## Tracking Short URL visits
+Track how many times a specific short url was visited.

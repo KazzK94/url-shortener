@@ -18,3 +18,6 @@ The app will give an API Key so any user can use the shortener in their site.
 
 ## Tracking Short URL visits
 Track how many times a specific short url was visited.
+
+## Validate URL
+Make sure the introduced URL is a valid URL.

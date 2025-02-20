@@ -3,18 +3,44 @@
 	"version": "1.0.0",
 	"description": "URL Shortener with Express and MongoDB",
 	"main": "./src/index.js",
-	"type": "module",
 	"scripts": {
-		"dev": "node src/index.js --watch",
-		"start": "node src/index.js"
+		"dev": "ts-node-dev src/index.ts",
+		"build": "tsc",
+		"start": "node dist/index.js",
+		"tsc": "tsc",
+		"lint": "ts-standard"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "WTFPL",
 	"dependencies": {
 		"cors": "^2.8.5",
+		"dotenv": "^16.4.7",
 		"express": "^4.21.2",
 		"mongodb": "^6.13.0",
+		"mongoose": "^8.10.1",
 		"nanoid": "^5.0.9"
+	},
+	"devDependencies": {
+		"@types/cors": "^2.8.17",
+		"@types/express": "^5.0.0",
+		"ts-node-dev": "^2.0.0",
+		"ts-standard": "^12.0.2",
+		"typescript": "^5.7.3"
+	},
+	"eslintConfig": {
+		"parserOptions": {
+			"project": "./tsconfig.json"
+		},
+		"extends": [
+			"./node_modules/ts-standard/eslintrc.json"
+		],
+		"rules": {
+			"no-tabs": "off",
+			"@typescript-eslint/indent": [
+				"error",
+				"tab"
+			]
+		}
 	}
 }

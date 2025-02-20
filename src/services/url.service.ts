@@ -30,7 +30,7 @@ export async function getUrlFromShortKey(shortKey: string): Promise<UrlDataType>
 function isValidUrl(url: string): boolean {
 	try {
 		const validUrl = new URL(url)
-		return validUrl.protocol === 'http' || validUrl.protocol === 'https'
+		return validUrl.protocol === 'http:' || validUrl.protocol === 'https:'
 	} catch (error) {
 		console.log(error)
 		return false

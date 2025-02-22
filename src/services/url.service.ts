@@ -26,6 +26,11 @@ export async function getUrlFromShortKey(shortKey: string): Promise<UrlDataType>
 	return url
 }
 
+export async function registerShortUrlVisit({ shortKey, ip }: { shortKey: string, ip: string }): Promise<void> {
+	console.log('Visitors IP', ip)
+	console.log()
+}
+
 /** Receives a string and returns true if its a valid url, or false otherwise */
 function isValidUrl(url: string): boolean {
 	try {

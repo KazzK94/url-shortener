@@ -5,6 +5,7 @@ import dotenv from 'dotenv'
 
 import urlRoutes from './routes/url.routes'
 import mongoose from 'mongoose'
+import ipinfoMiddleware from 'ipinfo-express'
 
 dotenv.config()
 
@@ -13,6 +14,13 @@ const port = 3000
 
 app.use(express.json())
 app.use(cors())
+
+app.set('trust proxy', true)
+app.use(ipinfoMiddleware({
+	token: 'token',
+	cache: null,
+	timeout: 5000
+}))
 
 const MONGODB_URI = process.env.MONGODB_URI
 if (MONGODB_URI === undefined || MONGODB_URI === null || MONGODB_URI === '') {

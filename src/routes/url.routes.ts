@@ -1,5 +1,6 @@
 import { Router } from 'express'
-import { getUrlFromShortKey, shortenUrl } from '../services/url.service'
+import { getUrlFromShortKey, registerShortUrlVisit, shortenUrl } from '../services/url.service'
+import { RequestWithIpInfo } from '../types'
 
 const router = Router()
 
@@ -22,7 +23,7 @@ router.post('/shorten', async (req, res) => {
 	}
 })
 
-router.get('/:shortKey', async (req, res) => {
+router.get('/:shortKey', async (req: RequestWithIpInfo, res) => {
 	const { shortKey } = req.params
 	try {
 		const url = await getUrlFromShortKey(shortKey)
@@ -30,6 +31,12 @@ router.get('/:shortKey', async (req, res) => {
 			res.status(404).json({ error: 'URL not found' })
 			return
 		}
+		const ip = req.ipinfo
+		if (ip === undefined || ip === null) {
+			res.status(400).json({ error: 'IP not found' })
+			return
+		}
+		await registerShortUrlVisit({ shortKey, ip })
 		res.redirect(url.targetUrl)
 	} catch (error) {
 		console.error(error)

@@ -29,7 +29,7 @@ export async function getUrlFromShortKey({ shortKey, ipInfo, headers }: { shortK
 			shortKey,
 			city: ipInfo.city,
 			country: ipInfo.country,
-			continent: ipInfo.continent,
+			continent: ipInfo.continent.name,
 			referer: headers.referer,
 			device: getDeviceType(headers['user-agent']),
 			os: getOs(headers['user-agent']),

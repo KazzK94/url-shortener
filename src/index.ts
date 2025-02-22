@@ -21,7 +21,7 @@ if (IPINFO_TOKEN === undefined || IPINFO_TOKEN === null || IPINFO_TOKEN === '') 
 }
 app.set('trust proxy', true)
 app.use(ipinfoMiddleware({
-	token: process.env.IPINFO_TOKEN,
+	token: IPINFO_TOKEN,
 	cache: null,
 	timeout: 5000
 }))

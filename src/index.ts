@@ -15,9 +15,13 @@ const port = 3000
 app.use(express.json())
 app.use(cors())
 
+const IPINFO_TOKEN = process.env.IPINFO_TOKEN
+if (IPINFO_TOKEN === undefined || IPINFO_TOKEN === null || IPINFO_TOKEN === '') {
+	throw new Error('Missing IPINFO_TOKEN in .env file')
+}
 app.set('trust proxy', true)
 app.use(ipinfoMiddleware({
-	token: 'token',
+	token: process.env.IPINFO_TOKEN,
 	cache: null,
 	timeout: 5000
 }))

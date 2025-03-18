@@ -2,10 +2,13 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import mongoose from 'mongoose'
 
 import urlRoutes from './routes/url.routes'
-import mongoose from 'mongoose'
+import authRoutes from './routes/auth.routes'
+
 import ipinfoMiddleware from 'ipinfo-express'
+import { clerkMiddleware } from '@clerk/express'
 
 dotenv.config()
 
@@ -14,6 +17,7 @@ const port = 3000
 
 app.use(express.json())
 app.use(cors())
+app.use(clerkMiddleware())
 
 const IPINFO_TOKEN = process.env.IPINFO_TOKEN
 if (IPINFO_TOKEN === undefined || IPINFO_TOKEN === null || IPINFO_TOKEN === '') {
@@ -35,6 +39,7 @@ mongoose.connect(MONGODB_URI, { dbName: 'url-shortener' })
 	.catch(err => console.log({ message: 'Error trying to connect to the DB', error: err }))
 
 app.use('/', urlRoutes)
+app.use('/auth', authRoutes)
 
 app.listen(port, () => {
 	console.log(`Server is running at http://localhost:${port}`)

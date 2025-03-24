@@ -8,10 +8,7 @@ router.get('/me', requireAuth({ signInUrl: '/auth/unauthorized' }), async (req, 
 	const { userId } = getAuth(req)
 
 	if (userId === undefined || userId === null || userId === '') {
-		res.status(401).json({
-			authenticated: false,
-			message: 'You need to be authenticated to access this resource'
-		})
+		res.redirect('/auth/unauthorized')
 		return
 	}
 

@@ -17,8 +17,21 @@ export async function shortenUrl(targetUrl: string, userId: string | null): Prom
 	return url
 }
 
+export async function getOwnedUrls(userId: string): Promise<UrlDataType[]> {
+	const urls = await UrlModel.find({ ownerId: userId })
+	return urls
+}
+
+export async function getUrlDataFromShortKey({ shortKey }: { shortKey: string }): Promise<UrlDataType> {
+	const urlData = await UrlModel.findOne({ shortKey })
+	if (urlData === null) {
+		throw new Error('Error: No URL was found with this shortKey')
+	}
+	return urlData
+}
+
 /** Receives a shortKey and returns an object containing both the fullUrl, the shortKey and the visits */
-export async function getUrlFromShortKey({ shortKey, ipInfo, headers }: { shortKey: string, ipInfo: IpInfo | undefined, headers: UsedRequestHeaders }): Promise<UrlDataType> {
+export async function visitUrlFromShortKey({ shortKey, ipInfo, headers }: { shortKey: string, ipInfo: IpInfo | undefined, headers: UsedRequestHeaders }): Promise<string> {
 	const urlData = await UrlModel.findOne({ shortKey })
 	if (urlData === null) {
 		throw new Error('Error: No URL was found with this shortKey')
@@ -57,7 +70,7 @@ export async function getUrlFromShortKey({ shortKey, ipInfo, headers }: { shortK
 		console.warn('IP Data not found, visit details not registered')
 	}
 
-	return urlData
+	return urlData.targetUrl
 }
 
 function updateUrlDataVisits(urlData: UrlType, visit?: VisitType): void {

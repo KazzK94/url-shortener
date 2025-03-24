@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import { getUrlFromShortKey, shortenUrl } from '../services/url.service'
+import { visitUrlFromShortKey, shortenUrl, getUrlDataFromShortKey, getOwnedUrls } from '../services/url.service'
 import { RequestWithIpInfo } from '../types'
-import { getAuth } from '@clerk/express'
+import { getAuth, requireAuth } from '@clerk/express'
 
 const router = Router()
 
@@ -24,22 +24,51 @@ router.post('/shorten', async (req, res) => {
 router.get('/:shortKey', async (req: RequestWithIpInfo, res) => {
 	const { shortKey } = req.params
 	try {
-		const url = await getUrlFromShortKey({ shortKey, ipInfo: req.ipinfo, headers: req.headers })
-		if (url === null) {
+		const targetUrl = await visitUrlFromShortKey({ shortKey, ipInfo: req.ipinfo, headers: req.headers })
+		if (targetUrl === null) {
 			res.status(404).json({ error: 'URL not found' })
 			return
 		}
-		res.redirect(url.targetUrl)
+		res.redirect(targetUrl)
 	} catch (error) {
 		console.error(error)
 		res.status(404).json({ error: 'Couldn\'t find a URL with this shortkey.' })
 	}
 })
 
-router.get('/info/:shortKey', async (req, res) => {
-	const { shortKey } = req.params
+router.get('/info', requireAuth({ signInUrl: '/auth/unauthorized' }), async (req, res) => {
+	const { userId } = getAuth(req)
 
-	res.json({ shortKey })
+	if (userId === undefined || userId === null || userId === '') {
+		res.redirect('/auth/unauthorized')
+		return
+	}
+
+	const urlsData = await getOwnedUrls(userId)
+	res.json(urlsData)
+})
+
+router.get('/info/:shortKey', requireAuth({ signInUrl: '/auth/unauthorized' }), async (req, res) => {
+	const { shortKey } = req.params
+	const { userId } = getAuth(req)
+
+	if (userId === undefined || userId === null || userId === '') {
+		res.redirect('/auth/unauthorized')
+		return
+	}
+
+	const urlData = await getUrlDataFromShortKey({ shortKey })
+	if (urlData === null) {
+		res.status(404).json({ error: 'URL not found' })
+		return
+	}
+
+	if (urlData.ownerId !== userId) {
+		res.status(403).json({ error: 'You are not authorized to access this resource' })
+		return
+	}
+
+	res.json(urlData)
 })
 
 export default router

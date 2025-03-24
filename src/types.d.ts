@@ -4,6 +4,7 @@ import { Request } from 'express'
 export interface UrlDataType {
 	shortKey: string
 	targetUrl: string
+	ownerId?: string | null
 }
 
 export interface IpInfo {

@@ -4,13 +4,6 @@ import { RequestWithIpInfo } from '../types'
 
 const router = Router()
 
-router.get('/', async (_req, res) => {
-	res.json({
-		message: 'Please refer to the GitHub documentation in order to learn how to use this API.',
-		url: 'https://github.com/KazzK94/url-shortener'
-	})
-})
-
 router.post('/shorten', async (req, res) => {
 	const { url } = req.body
 	if (url === null || url === undefined || url === '') {

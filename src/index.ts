@@ -6,6 +6,7 @@ import mongoose from 'mongoose'
 
 import urlRoutes from './routes/url.routes'
 import authRoutes from './routes/auth.routes'
+import healthRoutes from './routes/health.routes'
 
 import ipinfoMiddleware from 'ipinfo-express'
 import { clerkMiddleware } from '@clerk/express'
@@ -38,8 +39,10 @@ mongoose.connect(MONGODB_URI, { dbName: 'url-shortener' })
 	.then(() => console.log('DB Connected'))
 	.catch(err => console.log({ message: 'Error trying to connect to the DB', error: err }))
 
+app.get('/', (_, res) => res.redirect('https://github.com/KazzK94/url-shortener'))
 app.use('/', urlRoutes)
 app.use('/auth', authRoutes)
+app.use('/health', healthRoutes)
 
 app.listen(port, () => {
 	console.log(`Server is running at http://localhost:${port}`)

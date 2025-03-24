@@ -95,20 +95,20 @@ function updateUrlDataVisits(urlData: UrlType, visit?: VisitType): void {
 	if (visit === null || visit === undefined || visit.referer === null || visit.referer === undefined) {
 		urlData.visits.byReferer.set('unknown',
 			(urlData.visits.byReferer.get('unknown') ?? 0) + 1)
-	} else if (urlData.visits.byReferer.get(visit.referer) === undefined) {
+	} else if (urlData.visits.byReferer.get(encodeKey(visit.referer)) === undefined) {
 		urlData.visits.byReferer.set(encodeKey(visit.referer), 1)
 	} else {
 		urlData.visits.byReferer.set(encodeKey(visit.referer),
-			(urlData.visits.byReferer.get(visit.referer) ?? 0) + 1)
+			(urlData.visits.byReferer.get(encodeKey(visit.referer)) ?? 0) + 1)
 	}
 }
 
 function encodeKey(key: string): string {
-	return key.replace(/\./g, '_DOT_')
+	return key.replace(/\./g, '__DOT__')
 }
 
 export function decodeKey(encodedKey: string): string {
-	return encodedKey.replace(/_DOT_/g, '.')
+	return encodedKey.replace(/__DOT__/g, '.')
 }
 
 /** Receives a string and returns true if its a valid url, or false otherwise */

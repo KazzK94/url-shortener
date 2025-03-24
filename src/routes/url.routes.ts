@@ -21,21 +21,6 @@ router.post('/shorten', async (req, res) => {
 	}
 })
 
-router.get('/:shortKey', async (req: RequestWithIpInfo, res) => {
-	const { shortKey } = req.params
-	try {
-		const targetUrl = await visitUrlFromShortKey({ shortKey, ipInfo: req.ipinfo, headers: req.headers })
-		if (targetUrl === null) {
-			res.status(404).json({ error: 'URL not found' })
-			return
-		}
-		res.redirect(targetUrl)
-	} catch (error) {
-		console.error(error)
-		res.status(404).json({ error: 'Couldn\'t find a URL with this shortkey.' })
-	}
-})
-
 router.get('/info', requireAuth({ signInUrl: '/auth/unauthorized' }), async (req, res) => {
 	const { userId } = getAuth(req)
 
@@ -69,6 +54,21 @@ router.get('/info/:shortKey', requireAuth({ signInUrl: '/auth/unauthorized' }), 
 	}
 
 	res.json(urlData)
+})
+
+router.get('/:shortKey', async (req: RequestWithIpInfo, res) => {
+	const { shortKey } = req.params
+	try {
+		const targetUrl = await visitUrlFromShortKey({ shortKey, ipInfo: req.ipinfo, headers: req.headers })
+		if (targetUrl === null) {
+			res.status(404).json({ error: 'URL not found' })
+			return
+		}
+		res.redirect(targetUrl)
+	} catch (error) {
+		console.error(error)
+		res.status(404).json({ error: 'Couldn\'t find a URL with this shortkey.' })
+	}
 })
 
 export default router

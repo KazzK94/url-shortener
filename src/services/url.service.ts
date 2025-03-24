@@ -1,8 +1,8 @@
 
-import { UrlModel } from '../models/url.model'
+import { UrlModel, UrlType } from '../models/url.model'
+import { VisitModel, VisitType } from '../models/visit.model'
 import { nanoid } from 'nanoid'
 import { IpInfo, UrlDataType, UsedRequestHeaders } from '../types'
-import { VisitModel } from '../models/visit.model'
 
 import { UAParser } from 'ua-parser-js'
 
@@ -26,22 +26,79 @@ export async function getUrlFromShortKey({ shortKey, ipInfo, headers }: { shortK
 
 	if (ipInfo !== undefined && ipInfo !== null) {
 		const newVisit = new VisitModel({
-			shortKey,
+			url_id: urlData._id,
 			city: ipInfo.city,
 			country: ipInfo.country,
-			continent: ipInfo.continent.name,
+			continent: ipInfo.continent?.name,
 			referer: headers.referer,
 			device: getDeviceType(headers['user-agent']),
 			os: getOs(headers['user-agent']),
 			date: new Date()
 		})
-		await newVisit.save()
+		newVisit.save()
+			.then(() => {
+				updateUrlDataVisits(urlData, newVisit)
+				urlData.save()
+					.catch(error => {
+						console.error('Error saving URL visits:', error)
+					})
+			})
+			.catch(error => {
+				console.error('Error saving new visit:', error)
+			})
 	} else {
-		// TODO: Register this as anonymous visit
-		console.error('IP Data not found, visit not registered')
+		updateUrlDataVisits(urlData)
+		urlData.save()
+			.catch(error => {
+				console.error('Error saving URL visits:', error)
+			})
+		console.warn('IP Data not found, visit details not registered')
 	}
 
 	return urlData
+}
+
+function updateUrlDataVisits(urlData: UrlType, visit?: VisitType): void {
+	if (urlData.visits === null || urlData.visits === undefined) return
+
+	// Total visits & last visit
+	urlData.visits.total += 1
+	urlData.lastVisitAt = new Date()
+
+	// TODO: Change the code below to use a generic function to avoid redundancy
+
+	// Visits by Country
+	if (visit === undefined || visit.country === null || visit.country === undefined) {
+		urlData.visits.byCountry.set('unknown',
+			(urlData.visits.byCountry.get('unknown') ?? 0) + 1)
+	} else if (urlData.visits.byCountry.get(visit.country) === undefined) {
+		urlData.visits.byCountry.set(visit.country, 1)
+	} else {
+		urlData.visits.byCountry.set(visit.country,
+			(urlData.visits.byCountry.get(visit.country) ?? 0) + 1)
+	}
+
+	// Visits by Device
+	if (visit === undefined || visit.device === null || visit.device === undefined) {
+		urlData.visits.byDevice.set('unknown',
+			(urlData.visits.byDevice.get('unknown') ?? 0) + 1)
+	} else if (urlData.visits.byDevice.get(visit.device) === undefined) {
+		urlData.visits.byDevice.set(visit.device, 1)
+	} else {
+		urlData.visits.byDevice.set(visit.device,
+			(urlData.visits.byDevice.get(visit.device) ?? 0) + 1)
+	}
+
+	// Visits by Referer
+	if (visit === undefined || visit.referer === null || visit.referer === undefined) {
+		urlData.visits.byReferer.set('unknown',
+			(urlData.visits.byReferer.get('unknown') ?? 0) + 1)
+	} else if (urlData.visits.byReferer.get(visit.referer) === undefined) {
+		urlData.visits.byReferer.set(visit.referer, 1)
+	} else {
+		urlData.visits.byReferer.set(visit.referer,
+			(urlData.visits.byReferer.get(visit.referer) ?? 0) + 1)
+	}
 }
 
 /** Receives a string and returns true if its a valid url, or false otherwise */

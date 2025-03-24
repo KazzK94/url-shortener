@@ -1,19 +1,19 @@
 import { Router } from 'express'
 import { visitUrlFromShortKey, shortenUrl, getUrlDataFromShortKey, getOwnedUrls } from '../services/url.service'
-import { RequestWithIpInfo } from '../types'
+import { RequestWithAuth, RequestWithIpInfo } from '../types'
 import { getAuth, requireAuth } from '@clerk/express'
 
 const router = Router()
 
-router.post('/shorten', async (req, res) => {
+router.post('/shorten', requireAuth(), async (req: RequestWithAuth, res) => {
 	const { url } = req.body
 	if (url === null || url === undefined || url === '') {
 		res.status(400).json({ error: 'URL is required' })
 		return
 	}
 	try {
-		const { userId } = getAuth(req)
-		const shortUrl = await shortenUrl(url, userId)
+		const userId = req.auth?.userId
+		const shortUrl = await shortenUrl(url, (userId ?? null))
 		res.json(shortUrl)
 	} catch (error) {
 		console.error(error)

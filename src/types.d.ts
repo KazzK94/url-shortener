@@ -19,6 +19,10 @@ export interface RequestWithIpInfo extends Request {
 	ipinfo?: IpInfo
 }
 
+export interface RequestWithAuth extends Request {
+	auth?: { userId: string }
+}
+
 export interface UsedRequestHeaders {
 	'user-agent'?: string
 	'referer'?: string

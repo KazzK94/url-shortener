@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { getUrlFromShortKey, shortenUrl } from '../services/url.service'
 import { RequestWithIpInfo } from '../types'
+import { getAuth } from '@clerk/express'
 
 const router = Router()
 
@@ -11,7 +12,8 @@ router.post('/shorten', async (req, res) => {
 		return
 	}
 	try {
-		const shortUrl = await shortenUrl(url)
+		const { userId } = getAuth(req)
+		const shortUrl = await shortenUrl(url, userId)
 		res.json(shortUrl)
 	} catch (error) {
 		console.error(error)
@@ -32,6 +34,12 @@ router.get('/:shortKey', async (req: RequestWithIpInfo, res) => {
 		console.error(error)
 		res.status(404).json({ error: 'Couldn\'t find a URL with this shortkey.' })
 	}
+})
+
+router.get('/info/:shortKey', async (req, res) => {
+	const { shortKey } = req.params
+
+	res.json({ shortKey })
 })
 
 export default router

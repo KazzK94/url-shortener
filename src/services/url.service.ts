@@ -7,12 +7,12 @@ import { IpInfo, UrlDataType, UsedRequestHeaders } from '../types'
 import { UAParser } from 'ua-parser-js'
 
 /** Receives a full url, then returns an object containing both the fullUrl and the shortKey (and visits: 0) */
-export async function shortenUrl(targetUrl: string): Promise<UrlDataType> {
+export async function shortenUrl(targetUrl: string, userId: string | null): Promise<UrlDataType> {
 	if (targetUrl === undefined || targetUrl === null || targetUrl === '' || !isValidUrl(targetUrl)) {
 		throw new Error('Error: Invalid URL format. Please provide a valid URL')
 	}
 	const shortKey = nanoid(6)
-	const url = new UrlModel({ targetUrl, shortKey })
+	const url = new UrlModel({ targetUrl, shortKey, ownerId: userId })
 	await url.save()
 	return url
 }
@@ -68,7 +68,7 @@ function updateUrlDataVisits(urlData: UrlType, visit?: VisitType): void {
 	// TODO: Change the code below to use a generic function to avoid redundancy
 
 	// Visits by Country
-	if (visit === undefined || visit.country === null || visit.country === undefined) {
+	if (visit === null || visit === undefined || visit.country === null || visit.country === undefined) {
 		urlData.visits.byCountry.set('unknown',
 			(urlData.visits.byCountry.get('unknown') ?? 0) + 1)
 	} else if (urlData.visits.byCountry.get(visit.country) === undefined) {
@@ -79,7 +79,7 @@ function updateUrlDataVisits(urlData: UrlType, visit?: VisitType): void {
 	}
 
 	// Visits by Device
-	if (visit === undefined || visit.device === null || visit.device === undefined) {
+	if (visit === null || visit === undefined || visit.device === null || visit.device === undefined) {
 		urlData.visits.byDevice.set('unknown',
 			(urlData.visits.byDevice.get('unknown') ?? 0) + 1)
 	} else if (urlData.visits.byDevice.get(visit.device) === undefined) {
@@ -90,7 +90,7 @@ function updateUrlDataVisits(urlData: UrlType, visit?: VisitType): void {
 	}
 
 	// Visits by Referer
-	if (visit === undefined || visit.referer === null || visit.referer === undefined) {
+	if (visit === null || visit === undefined || visit.referer === null || visit.referer === undefined) {
 		urlData.visits.byReferer.set('unknown',
 			(urlData.visits.byReferer.get('unknown') ?? 0) + 1)
 	} else if (urlData.visits.byReferer.get(visit.referer) === undefined) {

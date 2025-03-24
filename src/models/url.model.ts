@@ -6,7 +6,7 @@ const UrlSchema = new Schema(
 	{
 		targetUrl: { type: String, required: true },
 		shortKey: { type: String, unique: true, required: true },
-		ownerId: { type: String, required: false, default: null },
+		ownerId: { type: String, required: false },
 		visits: {
 			total: { type: Number, default: 0, required: true },
 			byCountry: { type: Map, of: Number, default: {} },

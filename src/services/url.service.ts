@@ -25,7 +25,7 @@ export async function getUrlFromShortKey({ shortKey, ipInfo, headers }: { shortK
 	}
 
 	if (ipInfo !== undefined && ipInfo !== null) {
-		const newVisit = new VisitModel({
+		const newVisitData = {
 			url_id: urlData._id,
 			city: ipInfo.city,
 			country: ipInfo.country,
@@ -34,10 +34,12 @@ export async function getUrlFromShortKey({ shortKey, ipInfo, headers }: { shortK
 			device: getDeviceType(headers['user-agent']),
 			os: getOs(headers['user-agent']),
 			date: new Date()
-		})
-		newVisit.save()
+		}
+		console.log({ newVisitData })
+		const visit = new VisitModel(newVisitData)
+		visit.save()
 			.then(() => {
-				updateUrlDataVisits(urlData, newVisit)
+				updateUrlDataVisits(urlData, visit)
 				urlData.save()
 					.catch(error => {
 						console.error('Error saving URL visits:', error)
@@ -94,11 +96,19 @@ function updateUrlDataVisits(urlData: UrlType, visit?: VisitType): void {
 		urlData.visits.byReferer.set('unknown',
 			(urlData.visits.byReferer.get('unknown') ?? 0) + 1)
 	} else if (urlData.visits.byReferer.get(visit.referer) === undefined) {
-		urlData.visits.byReferer.set(visit.referer, 1)
+		urlData.visits.byReferer.set(encodeKey(visit.referer), 1)
 	} else {
-		urlData.visits.byReferer.set(visit.referer,
+		urlData.visits.byReferer.set(encodeKey(visit.referer),
 			(urlData.visits.byReferer.get(visit.referer) ?? 0) + 1)
 	}
+}
+
+function encodeKey(key: string): string {
+	return key.replace(/\./g, '_DOT_')
+}
+
+export function decodeKey(encodedKey: string): string {
+	return encodedKey.replace(/_DOT_/g, '.')
 }
 
 /** Receives a string and returns true if its a valid url, or false otherwise */

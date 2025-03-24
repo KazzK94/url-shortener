@@ -48,7 +48,6 @@ export async function visitUrlFromShortKey({ shortKey, ipInfo, headers }: { shor
 			os: getOs(headers['user-agent']),
 			date: new Date()
 		}
-		console.log({ newVisitData })
 		const visit = new VisitModel(newVisitData)
 		visit.save()
 			.then(() => {
@@ -130,7 +129,7 @@ function isValidUrl(url: string): boolean {
 		const validUrl = new URL(url)
 		return validUrl.protocol === 'http:' || validUrl.protocol === 'https:'
 	} catch (error) {
-		console.log(error)
+		console.error(error)
 		return false
 	}
 }

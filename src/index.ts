@@ -37,7 +37,7 @@ if (MONGODB_URI === undefined || MONGODB_URI === null || MONGODB_URI === '') {
 }
 mongoose.connect(MONGODB_URI, { dbName: 'url-shortener' })
 	.then(() => console.log('DB Connected'))
-	.catch(err => console.log({ message: 'Error trying to connect to the DB', error: err }))
+	.catch(err => console.error({ message: 'Error trying to connect to the DB', error: err }))
 
 app.get('/', (_, res) => res.redirect('https://github.com/KazzK94/url-shortener'))
 app.use('/', urlRoutes)

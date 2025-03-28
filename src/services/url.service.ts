@@ -5,11 +5,14 @@ import { nanoid } from 'nanoid'
 import { IpInfo, UrlDataType, UsedRequestHeaders } from '../types'
 
 import { UAParser } from 'ua-parser-js'
+import { NotFoundError } from '../errors/notFound.error'
+import { InvalidFormatError } from '../errors/invalidFormat.error'
+import { ForbiddenAccessError } from '../errors/forbiddenAccess.error'
 
 /** Receives a full url, then returns an object containing both the fullUrl and the shortKey (and visits: 0) */
 export async function shortenUrl(targetUrl: string, userId: string | null): Promise<UrlDataType> {
 	if (targetUrl === undefined || targetUrl === null || targetUrl === '' || !isValidUrl(targetUrl)) {
-		throw new Error('Error: Invalid URL format. Please provide a valid URL')
+		throw new InvalidFormatError('Invalid URL format. Please provide a valid URL')
 	}
 	const shortKey = nanoid(6)
 	const url = new UrlModel({ targetUrl, shortKey, ownerId: userId })
@@ -17,7 +20,10 @@ export async function shortenUrl(targetUrl: string, userId: string | null): Prom
 	return url
 }
 
-export async function getOwnedUrls(userId: string): Promise<UrlDataType[]> {
+export async function getOwnedUrls(userId: string | null): Promise<UrlDataType[]> {
+	if (userId === null) {
+		throw new ForbiddenAccessError('You cannot access your URL\'s data without being logged in')
+	}
 	const urls = await UrlModel.find({ ownerId: userId })
 	return urls
 }
@@ -25,16 +31,73 @@ export async function getOwnedUrls(userId: string): Promise<UrlDataType[]> {
 export async function getUrlDataFromShortKey({ shortKey }: { shortKey: string }): Promise<UrlDataType> {
 	const urlData = await UrlModel.findOne({ shortKey })
 	if (urlData === null) {
-		throw new Error('Error: No URL was found with this shortKey')
+		throw new NotFoundError('Error: No URL was found with this shortKey')
 	}
 	return urlData
+}
+
+export async function renameUrlShortKey({ shortKey, newShortKey, userId }: { shortKey: string, newShortKey: string, userId: string | null }): Promise<string> {
+	if (newShortKey === undefined || newShortKey === null || newShortKey === '') {
+		throw new InvalidFormatError('Invalid Short Key format. Please provide a valid Short Key')
+	}
+	const urlData = await UrlModel.findOne({ shortKey })
+	if (urlData === null) {
+		throw new NotFoundError('Could not find URL Data for this shortKey.')
+	}
+	if (userId === null || urlData.ownerId !== userId) {
+		throw new ForbiddenAccessError('You are not authorized to access this URL\'s data')
+	}
+	// TODO: IMPORTANT: Check if the new shortKey has a valid format
+	try {
+		const newUrlData = await urlData.updateOne({ shortKey: newShortKey })
+		return newUrlData.shortKey
+	} catch (error) {
+		console.error('Error updating URL shortKey:', error)
+		throw new Error('Error updating URL shortKey')
+	}
+}
+
+export async function enableUrl({ shortKey, userId }: { shortKey: string, userId: string | null }): Promise<void> {
+	if (userId === null) {
+		throw new ForbiddenAccessError('You cannot modify a URL without being logged in')
+	}
+	const disabledUrl = await UrlModel.findOneAndUpdate({ shortKey, ownerId: userId }, { enabled: true }, { new: true })
+	if (disabledUrl === null) {
+		throw new NotFoundError('No URL owned by the logged user was found with this shortKey')
+	}
+}
+
+export async function disableUrl({ shortKey, userId }: { shortKey: string, userId: string | null }): Promise<void> {
+	if (userId === null) {
+		throw new ForbiddenAccessError('You cannot modify a URL without being logged in')
+	}
+	const disabledUrl = await UrlModel.findOneAndUpdate({ shortKey, ownerId: userId }, { enabled: false }, { new: true })
+	if (disabledUrl === null) {
+		throw new NotFoundError('No URL owned by the logged user was found with this shortKey')
+	}
+}
+
+export async function deleteUrl({ shortKey, userId }: { shortKey: string, userId: string | null }): Promise<void> {
+	const urlData = await UrlModel.findOne({ shortKey })
+	if (urlData === null) {
+		throw new NotFoundError('No URL was found with this shortKey')
+	}
+	if (userId === null || urlData.ownerId !== userId) {
+		throw new ForbiddenAccessError('You are not authorized to access this URL\'s data')
+	}
+	try {
+		await urlData.deleteOne()
+	} catch (error) {
+		console.error('Error deleting URL:', error)
+		throw new Error('Error deleting URL')
+	}
 }
 
 /** Receives a shortKey and returns an object containing both the fullUrl, the shortKey and the visits */
 export async function visitUrlFromShortKey({ shortKey, ipInfo, headers }: { shortKey: string, ipInfo: IpInfo | undefined, headers: UsedRequestHeaders }): Promise<string> {
 	const urlData = await UrlModel.findOne({ shortKey })
 	if (urlData === null) {
-		throw new Error('Error: No URL was found with this shortKey')
+		throw new NotFoundError('No URL was found with this shortKey')
 	}
 
 	if (ipInfo !== undefined && ipInfo !== null) {

@@ -87,6 +87,7 @@ export async function deleteUrl({ shortKey, userId }: { shortKey: string, userId
 	}
 	try {
 		await urlData.deleteOne()
+		await VisitModel.deleteMany({ url_id: urlData._id })
 	} catch (error) {
 		console.error('Error deleting URL:', error)
 		throw new Error('Error deleting URL')

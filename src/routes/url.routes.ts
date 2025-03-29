@@ -75,7 +75,11 @@ router.get('/:shortKey', async (req: RequestWithIpInfo, res) => {
 		res.redirect(targetUrl)
 	} catch (error) {
 		console.error(error)
-		res.status(404).json({ error: 'Couldn\'t find a URL with this shortkey.' })
+		if (error instanceof NotFoundError) {
+			res.status(error.status).send(error.message)
+		} else {
+			res.status(404).json({ error: 'Couldn\'t find a URL with this shortkey.' })
+		}
 	}
 })
 

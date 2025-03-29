@@ -101,6 +101,10 @@ export async function visitUrlFromShortKey({ shortKey, ipInfo, headers }: { shor
 		throw new NotFoundError(`No URL was found with the shortKey "${shortKey}"`)
 	}
 
+	if (!urlData.enabled) {
+		throw new NotFoundError('This URL has been disabled by the owner')
+	}
+
 	if (ipInfo !== undefined && ipInfo !== null) {
 		const newVisitData = {
 			url_id: urlData._id,

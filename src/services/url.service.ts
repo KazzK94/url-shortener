@@ -37,7 +37,8 @@ export async function getUrlDataFromShortKey({ shortKey }: { shortKey: string })
 }
 
 export async function renameUrlShortKey({ shortKey, newShortKey, userId }: { shortKey: string, newShortKey: string, userId: string | null }): Promise<string> {
-	if (newShortKey === undefined || newShortKey === null || newShortKey === '') {
+	const shortKeyRegex = /^[a-zA-Z0-9_-]{6}$/
+	if (newShortKey === undefined || newShortKey === null || newShortKey === '' || !shortKeyRegex.test(newShortKey)) {
 		throw new InvalidFormatError('Invalid Short Key format. Please provide a valid Short Key')
 	}
 	const urlData = await UrlModel.findOne({ shortKey })
@@ -47,7 +48,10 @@ export async function renameUrlShortKey({ shortKey, newShortKey, userId }: { sho
 	if (userId === null || urlData.ownerId !== userId) {
 		throw new ForbiddenAccessError('You are not authorized to access this URL\'s data')
 	}
-	// TODO: IMPORTANT: Check if the new shortKey has a valid format
+	const existingUrlData = await UrlModel.findOne({ shortKey: newShortKey })
+	if (existingUrlData !== null) {
+		throw new InvalidFormatError('The new shortKey already exists, please provide a different one')
+	}
 	try {
 		const newUrlData = await urlData.updateOne({ shortKey: newShortKey })
 		return newUrlData.shortKey

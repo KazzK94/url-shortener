@@ -31,7 +31,7 @@ export async function getOwnedUrls(userId: string | null): Promise<UrlDataType[]
 export async function getUrlDataFromShortKey({ shortKey }: { shortKey: string }): Promise<UrlDataType> {
 	const urlData = await UrlModel.findOne({ shortKey })
 	if (urlData === null) {
-		throw new NotFoundError('Error: No URL was found with this shortKey')
+		throw new NotFoundError(`No URL was found with the shortKey "${shortKey}"`)
 	}
 	return urlData
 }
@@ -42,7 +42,7 @@ export async function renameUrlShortKey({ shortKey, newShortKey, userId }: { sho
 	}
 	const urlData = await UrlModel.findOne({ shortKey })
 	if (urlData === null) {
-		throw new NotFoundError('Could not find URL Data for this shortKey.')
+		throw new NotFoundError(`No URL was found with the shortKey "${shortKey}"`)
 	}
 	if (userId === null || urlData.ownerId !== userId) {
 		throw new ForbiddenAccessError('You are not authorized to access this URL\'s data')
@@ -80,7 +80,7 @@ export async function disableUrl({ shortKey, userId }: { shortKey: string, userI
 export async function deleteUrl({ shortKey, userId }: { shortKey: string, userId: string | null }): Promise<void> {
 	const urlData = await UrlModel.findOne({ shortKey })
 	if (urlData === null) {
-		throw new NotFoundError('No URL was found with this shortKey')
+		throw new NotFoundError(`No URL was found with the shortKey "${shortKey}"`)
 	}
 	if (userId === null || urlData.ownerId !== userId) {
 		throw new ForbiddenAccessError('You are not authorized to access this URL\'s data')
@@ -98,7 +98,7 @@ export async function deleteUrl({ shortKey, userId }: { shortKey: string, userId
 export async function visitUrlFromShortKey({ shortKey, ipInfo, headers }: { shortKey: string, ipInfo: IpInfo | undefined, headers: UsedRequestHeaders }): Promise<string> {
 	const urlData = await UrlModel.findOne({ shortKey })
 	if (urlData === null) {
-		throw new NotFoundError('No URL was found with this shortKey')
+		throw new NotFoundError(`No URL was found with the shortKey "${shortKey}"`)
 	}
 
 	if (ipInfo !== undefined && ipInfo !== null) {

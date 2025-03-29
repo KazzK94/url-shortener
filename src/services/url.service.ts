@@ -37,9 +37,9 @@ export async function getUrlDataFromShortKey({ shortKey }: { shortKey: string })
 }
 
 export async function renameUrlShortKey({ shortKey, newShortKey, userId }: { shortKey: string, newShortKey: string, userId: string | null }): Promise<string> {
-	const shortKeyRegex = /^[a-zA-Z0-9_-]{6}$/
+	const shortKeyRegex = /^[a-zA-Z0-9_-]{5,}$/
 	if (newShortKey === undefined || newShortKey === null || newShortKey === '' || !shortKeyRegex.test(newShortKey)) {
-		throw new InvalidFormatError('Invalid Short Key format. Please provide a valid Short Key')
+		throw new InvalidFormatError('Invalid Short Key format, please provide a valid Short Key with at least 5 characters')
 	}
 	const urlData = await UrlModel.findOne({ shortKey })
 	if (urlData === null) {

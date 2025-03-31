@@ -1,7 +1,7 @@
 
 import { UrlModel, UrlType } from '../models/url.model'
 import { VisitModel, VisitType } from '../models/visit.model'
-import { nanoid } from 'nanoid'
+import nanoid from 'nanoid'
 import { IpInfo, UrlDataType, UsedRequestHeaders } from '../types'
 
 import { UAParser } from 'ua-parser-js'
@@ -14,7 +14,7 @@ export async function shortenUrl(targetUrl: string, userId: string | null): Prom
 	if (targetUrl === undefined || targetUrl === null || targetUrl === '' || !isValidUrl(targetUrl)) {
 		throw new InvalidFormatError('Invalid URL format. Please provide a valid URL')
 	}
-	const shortKey = nanoid(6)
+	const shortKey = nanoid.nanoid(6)
 	const url = new UrlModel({ targetUrl, shortKey, ownerId: userId })
 	await url.save()
 	return url

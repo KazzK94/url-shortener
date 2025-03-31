@@ -21,7 +21,6 @@
 		"ipinfo-express": "^2.0.2",
 		"mongodb": "^6.13.0",
 		"mongoose": "^8.10.1",
-		"nanoid": "^5.0.9",
 		"ua-parser-js": "^2.0.2"
 	},
 	"devDependencies": {
